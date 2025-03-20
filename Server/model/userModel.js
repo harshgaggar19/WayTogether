@@ -1,40 +1,38 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
-    name: {
-        type: String,
-        required:true
-    },
-    email: {
-        type: String,
-        required:true
-    },
-    preference: {
-        genderPreference: {
-            type:String,
-        },
-        agePreference: {
-            type:Number,
-        }
-    },
-    currentLocation: {
-        type: {
-            type: String,
-            enum: ["Point"],
-            required:true
-        },
-        coordinates: {
-            type: [Number],
-            // required:true,
-        }
-    },
-    clerkid: {
-        type: String,
-        required:true
-    }
+const UserSchema = new mongoose.Schema({
+	name: { type: String, required: true },
+	email: { type: String, required: true, unique: true },
 
-},{timestamps:true});
+	// User's preferred route for ride-matching
+	ridePreferences: {
+		from: {
+			type: { type: String, default: "Point" },
+			coordinates: { type: [Number], required: true }, // [longitude, latitude]
+		},
+		to: {
+			type: { type: String, default: "Point" },
+			coordinates: { type: [Number], required: true },
+		},
+		date: { type: Date, required: true },
+		time: { type: String, required: true }, // Can be HH:mm format
+		flexibilityInMinutes: { type: Number, default: 30 }, // How much time shift is acceptable
+	},
 
-const User = mongoose.model('User', userSchema);
+	// Ride status
+	isLookingForRide: { type: Boolean, default: true },
+	matchedRide: { type: mongoose.Schema.Types.ObjectId, ref: "Ride" },
+
+	createdAt: { type: Date, default: Date.now },
+	clerkid: {
+		type: String,
+		required: true,
+	},
+});
+
+// Create geospatial indexes for optimized location-based queries
+UserSchema.index({ "ridePreferences.from": "2dsphere" });
+UserSchema.index({ "ridePreferences.to": "2dsphere" });
+
+const User = mongoose.model("User", userSchema);
 export default User;

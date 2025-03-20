@@ -40,7 +40,7 @@ const DATA = {
 };
 export function FloatingNav() {
 	return (
-		<div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+		<div className="fixed bottom-0 md:bottom-10 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
 			<TooltipProvider>
 				<Dock direction="middle" className="gap-4">
 					{DATA.navbar.map((item) => (

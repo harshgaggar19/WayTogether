@@ -8,7 +8,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongo": "^0.1.0",
-    "mongoose": "^8.9.5"
+    "mongoose": "^8.9.5",
+    "node-fetch": "^3.3.2"
   },
   "type": "module"
 }

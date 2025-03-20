@@ -9,6 +9,7 @@ import {
 import SignupPage from "./pages/SignupPage";
 import { Toaster } from "./components/ui/sonner";
 import Layout from "./pages/Layout";
+import SourceDestinationHome from "./pages/SourceDestinationHome";
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 					<Route path="/signup" element={<SignupPage />} />
 					<Route path="/" element={<Layout />}>
 						<Route path="/harsh" element={<>hello harsh</>} />
+						<Route path="/home" element={<SourceDestinationHome/>} />
 					</Route>
 				</Routes>
 			</Router>
