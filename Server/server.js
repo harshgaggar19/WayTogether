@@ -28,7 +28,18 @@ app.post("/api/places", async (req, res) => {
 });
 
 
+app.get("/", (req, res) => {
+	res.send("Hello World");
+});
 
+app.post("/api/places", async (req, res) => {
+	console.log(req.body);
+	res.json({ message: "received" });
+});
+
+
+const router=express.Router();
+router.post()
 app.listen(port, () => {
     console.log("listening...")
 })
