@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Mapdisplay } from "@/components/Mapdisplay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
 	from: string;
@@ -18,6 +19,8 @@ interface FormData {
 }
 
 export function SourceDesTabs() {
+	const navigate = useNavigate();
+	const [submitting, setSubmitting] = useState(false);
 	const [formData, setFormData] = useState<FormData>({ from: "", to: "" });
 	const [suggestions, setSuggestions] = useState<string[]>([]);
 	const [selectedField, setSelectedField] = useState<"from" | "to" | "">("");
@@ -145,8 +148,9 @@ export function SourceDesTabs() {
 	const handleSubmit = async () => {
 		// console.log(sourceCoords,destinationCoords)
 		try {
+			setSubmitting(true);
 			const response = await axios.post(
-				"http://localhost:8080/api/places",
+				"http://localhost:8080/users/find-match",
 				{from:sourceCoords, to:destinationCoords},
 				{
 					headers: {
@@ -156,6 +160,9 @@ export function SourceDesTabs() {
 			);
 			// const data = await response.json();
 			console.log("Response from backend:", response);
+			if(response.status == 200){
+				navigate("/matched-users");
+			}
 		} catch (error) {
 			console.error("Error submitting data:", error);
 		}
@@ -244,7 +251,7 @@ export function SourceDesTabs() {
 					</TabsContent>
 
 					<Button className="mt-4 w-full" onClick={handleSubmit}>
-						Submit
+						{submitting? "Submitting": "Submit" }
 					</Button>
 				</Tabs>
 			</div>

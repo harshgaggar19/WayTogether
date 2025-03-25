@@ -8,7 +8,7 @@ import { FloatingNav } from "./FloatingNav";
 const Layout = () => {
 	return (
 		<div className="layout">
-			<FloatingNav />
+			{/* <FloatingNav /> */}
 			<main className="container">
 				<Outlet />
 			</main>

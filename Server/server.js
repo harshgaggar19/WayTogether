@@ -5,6 +5,7 @@ import connect from './database/conn.js';
 const port = process.env.PORT || 8080;
 import fetch from "node-fetch"; 
 import dotenv from "dotenv";
+import usersRouter from "./routes/userRoute.js";
 dotenv.config();
 import cors from 'cors';
 app.use(cors());
@@ -32,14 +33,15 @@ app.get("/", (req, res) => {
 	res.send("Hello World");
 });
 
+app.use("/users", usersRouter);
+
 app.post("/api/places", async (req, res) => {
 	console.log(req.body);
 	res.json({ message: "received" });
 });
 
-
-const router=express.Router();
-router.post()
+// const router=express.Router();
+// router.post()
 app.listen(port, () => {
     console.log("listening...")
 })

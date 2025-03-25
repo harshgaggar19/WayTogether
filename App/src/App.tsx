@@ -10,6 +10,8 @@ import SignupPage from "./pages/SignupPage";
 import { Toaster } from "./components/ui/sonner";
 import Layout from "./pages/Layout";
 import SourceDestinationHome from "./pages/SourceDestinationHome";
+import MatchedUsers from "./pages/MatchedUsers";
+import ViewMatch from "./pages/ViewMatch";
 
 function App() {
 	return (
@@ -21,6 +23,8 @@ function App() {
 					<Route path="/" element={<Layout />}>
 						<Route path="/harsh" element={<>hello harsh</>} />
 						<Route path="/home" element={<SourceDestinationHome/>} />
+						<Route path="/matched-users" element={<MatchedUsers/>} />
+						<Route path="/view-match/:id" element={<ViewMatch/>} />
 					</Route>
 				</Routes>
 			</Router>
