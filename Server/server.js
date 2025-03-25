@@ -1,45 +1,37 @@
-import 'dotenv/config'
-import express from 'express'
-const app = express();
+import 'dotenv/config';
+import express from 'express';
 import connect from './database/conn.js';
-const port = process.env.PORT || 8080;
-import fetch from "node-fetch"; 
 import dotenv from "dotenv";
-dotenv.config();
 import cors from 'cors';
-app.use(cors());
-// const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
+import { getChat } from './fetch/getchat.js';
+import './control/chat.js';
+import {makeGroup} from './control/room.js'
+import { signup } from "./controllers/userController.js";
+dotenv.config();
+const app = express();
+const port = process.env.PORT || 8080;
 
+app.use(cors());
 app.use(express.json());
 
 (async () => {
-	await connect().catch((err) => {
-		console.log("Invalid database connection...!", err.message);
-	});
+    await connect().catch((err) => {
+        console.log("Invalid database connection...!", err.message);
+    });
 })();
 
 app.get("/", (req, res) => {
-	res.send("Hello World");
+    res.send("Hello World");
 });
-
+app.post("/signup", signup);
 app.post("/api/places", async (req, res) => {
-	console.log(req.body);
-	res.json({ message: "received" });
+    console.log(req.body);
+    res.json({ message: "received" });
 });
 
+app.get("/api/getchat", getChat); // To get chat in room
+app.post("/api/room",makeGroup);// To contact with new person
 
-app.get("/", (req, res) => {
-	res.send("Hello World");
-});
-
-app.post("/api/places", async (req, res) => {
-	console.log(req.body);
-	res.json({ message: "received" });
-});
-
-
-const router=express.Router();
-router.post()
 app.listen(port, () => {
-    console.log("listening...")
-})
+    console.log(`Server is running on port ${port}`);
+});
