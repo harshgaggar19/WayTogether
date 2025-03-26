@@ -31,6 +31,8 @@ export default function SignupPage() {
 	const { isLoaded, signUp, setActive } = useSignUp();
 	const { signIn } = useSignIn();
 	const [emailAddress, setEmailAddress] = useState("");
+	
+const [mobileNumber, setMobileNumber] = useState("");
 	const [password, setPass] = useState("");
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -125,33 +127,70 @@ export default function SignupPage() {
 
 	const verify = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!isLoaded) {
-			return;
-		}
+		if (!isLoaded) return;
+
 		try {
 			setsubVerify("Verifying ...");
+
+			// Attempt email verification
 			const CompleteSignUp = await signUp.attemptEmailAddressVerification({
 				code,
 			});
+
 			if (CompleteSignUp.status !== "complete") {
-				console.log(JSON.stringify(CompleteSignUp, null, 2));
+				console.error(
+					"Verification failed:",
+					JSON.stringify(CompleteSignUp, null, 2)
+				);
 				toast.error("Try Again");
 				setsubVerify("Not Verified");
+				return;
 			}
-			if (CompleteSignUp.status === "complete") {
-				await setActive({
-					session: CompleteSignUp.createdSessionId,
-				});
-				toast.success("Signed in");
-				setsubVerify("Verified!");
+			const clerkUserId = CompleteSignUp.createdUserId; 
+			// Proceed only if verification is successful
+			try {
+				const response = await axios.post(
+					"http://localhost:8080/users/create-user",
+					{
+						firstName,
+						lastName,
+						email: emailAddress,
+						password,
+						mobileNumber,
+						clerkUserId,
+					},
+					{
+						headers: {
+							"Content-Type": "application/json",
+						},
+					}
+				);
+				console.log(response);
+
+				if (response.status == 201) {
+					toast.success("User Created");
+					await setActive({
+						session: CompleteSignUp.createdSessionId,
+					});
+					toast.success("Signed in");
+					setsubVerify("Verified!");
+				} else {
+					throw new Error("User creation failed");
+				}
+			} catch (error) {
+				console.error("Backend error:", error);
+				toast.error("Error creating user in backend");
+				setsubVerify("Not Verified");
 			}
 		} catch (error: any) {
+			console.error("Verification error:", error);
 			toast.error("Something went Wrong!", {
-				description: error.errors[0].message,
+				description: error?.errors?.[0]?.message || "Unknown error",
 			});
 			setsubVerify("Not Verified");
 		}
 	};
+
 
 	return (
 		<>
@@ -162,25 +201,25 @@ export default function SignupPage() {
 						Ride-share welcomes you
 					</div>
 					<Button>
-						<Link to={"/"}>Back to Home</Link>
+						<Link to={"/home"}>Back to Home</Link>
 					</Button>
 				</div>
 			) : (
 				<div className="w-screen h-screen transition-all flex justify-center items-center">
-					<div className="w-1/2 h-screen  bg-black">
+					<div className="w-1/2 h-screen hidden md:block bg-black">
 						<img
-							src="/3.jpg"
+							src="../public/img.png"
 							alt="img"
 							className="h-full  opacity-75 bg-black  object-cover"
 							loading="lazy"
 						/>
 					</div>
-					<div className="max-w-md w-1/2 mx-auto rounded-none flex flex-col gap-3  md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+					<div className="max-w-md md:w-1/2 w-screen mx-auto rounded-none flex flex-col gap-3  md:rounded-2xl p-8 shadow-input bg-white dark:bg-black">
 						<h2 className="font-bold text-xl text-center text-neutral-800 dark:text-neutral-200">
 							Welcome to Ride-match
 						</h2>
 						{!pendingVerification ? (
-							<Tabs defaultValue="sign-up" className="w-[400px]">
+							<Tabs defaultValue="sign-up" className="w-[80vw] md:w-[400px]">
 								<TabsList className="grid w-full grid-cols-2">
 									<TabsTrigger value="sign-up">Sign-up</TabsTrigger>
 									<TabsTrigger value="log-in">Log-in</TabsTrigger>
@@ -217,6 +256,16 @@ export default function SignupPage() {
 												placeholder="harsh@gmail.com"
 												onChange={(e) => setEmailAddress(e.target.value)}
 												type="email"
+											/>
+										</LabelInputContainer>
+										<LabelInputContainer className="mb-4">
+											<Label htmlFor="mobile">Mobile Number</Label>
+											<Input
+												value={mobileNumber}
+												id="mobile"
+												placeholder="+91 9876543210"
+												type="tel"
+												onChange={(e) => setMobileNumber(e.target.value)}
 											/>
 										</LabelInputContainer>
 										<LabelInputContainer className="mb-4 ">

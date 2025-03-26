@@ -11,6 +11,8 @@ import cors from 'cors';
 app.use(cors());
 // const { ClerkExpressWithAuth } = require("@clerk/clerk-sdk-node");
 
+
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 (async () => {

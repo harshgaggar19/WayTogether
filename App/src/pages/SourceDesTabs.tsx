@@ -12,6 +12,8 @@ import { Mapdisplay } from "@/components/Mapdisplay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useUser,SignedIn } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 interface FormData {
 	from: string;
@@ -20,6 +22,7 @@ interface FormData {
 
 export function SourceDesTabs() {
 	const navigate = useNavigate();
+	const {user} = useUser();
 	const [submitting, setSubmitting] = useState(false);
 	const [formData, setFormData] = useState<FormData>({ from: "", to: "" });
 	const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -147,11 +150,13 @@ export function SourceDesTabs() {
 
 	const handleSubmit = async () => {
 		// console.log(sourceCoords,destinationCoords)
+		
+		console.log(formData);
 		try {
 			setSubmitting(true);
 			const response = await axios.post(
 				"http://localhost:8080/users/find-match",
-				{from:sourceCoords, to:destinationCoords},
+				{from:sourceCoords, to:destinationCoords,fromName:formData.from,toName:formData.to,clerkUserId:user?.id},
 				{
 					headers: {
 						"Content-Type": "application/json",
@@ -162,6 +167,8 @@ export function SourceDesTabs() {
 			console.log("Response from backend:", response);
 			if(response.status == 200){
 				navigate("/matched-users");
+			} else {
+				toast.error(response.data.message);
 			}
 		} catch (error) {
 			console.error("Error submitting data:", error);
@@ -234,7 +241,7 @@ export function SourceDesTabs() {
 									placeholder="Enter destination"
 								/>
 								{selectedField === "to" && suggestions.length > 0 && (
-									<div className="absolute top-full left-0 w-full bg-white border shadow-md rounded-md z-10">
+									<div className="absolute bottom-full left-0 w-full bg-white border shadow-md rounded-md z-10">
 										{suggestions.map((place, index) => (
 											<div
 												key={index}
