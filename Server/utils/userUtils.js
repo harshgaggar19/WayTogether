@@ -15,8 +15,8 @@ export const haversine = (lat1, lon1, lat2, lon2) => {
 	const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 	return R * c;
 };
-
 export const findUserWithinRadius = (userLocations, lat, lon, radius = 1) => {
+	let matches = [];
 	for (const user in userLocations) {
 		const distance = haversine(
 			lat,
@@ -26,10 +26,12 @@ export const findUserWithinRadius = (userLocations, lat, lon, radius = 1) => {
 		);
 		if (distance <= radius) {
 			console.log(`${user} is within ${radius} km radius.`);
-			return user;
+			matches.push(user);
 		}
 	}
+	return matches.length > 0 ? matches : null;
 };
+
 
 async function returnData(coordinates) {
 	
@@ -41,8 +43,8 @@ async function returnData(coordinates) {
 	return data;
 }
 
-function create_string(lat, lon) {
-	return `${lon},${lat}`;
+function create_string(a, b) {
+	return `${a[0]},${a[1]};${b[0]},${b[1]}`;
 }
 
 export const findMostOptimalRoute = async(sources, destination) => {
@@ -78,11 +80,9 @@ export const findMostOptimalRoute = async(sources, destination) => {
 export const getRoutePoints = async (a, b) => {
 	const query_b = await fetch(
 		`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${create_string(
-			a[0],
-			a[1]
-		)};${create_string(b[0], b[1])}?geometries=geojson&access_token=${
-			process.env.MAPBOX_ACCESS_TOKEN
-		}`
+			a,
+			b
+		)}?geometries=geojson&access_token=${process.env.MAPBOX_ACCESS_TOKEN}`
 	);
 	const data_b = await query_b.json();
 	// console.log(data_b);

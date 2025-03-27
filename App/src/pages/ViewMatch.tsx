@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { MatchPageMap } from "@/components/MatchPageMap";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import {
@@ -10,45 +10,47 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/clerk-react";
 
 const ViewMatch = () => {
 	const { id } = useParams();
-	let [userData, setUserData] = useState<any | null>(null);
-	let [loading, setLoading] = useState(true);
-	const [drawerOpen, setDrawerOpen] = useState(true); // Always keep drawer open
+	const [userData, setUserData] = useState<any | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [drawerOpen, setDrawerOpen] = useState(true);
+	const [mobile, setMobile] = useState(false);
+	const { user } = useUser();
 
 	useEffect(() => {
-		if (!id) return;
+		if (!id || !user?.id) return;
 
 		setLoading(true);
-		fetch("http://localhost:8080/users/get-match")
+		fetch(`http://localhost:8080/users/get-match-final?clerkUserId=${user?.id}&matchedUserId=${id}`)
 			.then((res) => res.json())
 			.then((data) => {
-				const userDetail = data.matches.find(
-					(user: any) => user.matchedUser === id
-				);
-				setUserData(
-					userDetail || {
-						source: null,
-						stop1: null,
-						stop2: null,
-						destination: null,
-					}
-				);
-				console.log(userDetail);
+				console.log("Fetched match data:", data);
+
+
+				if (data.match ) {
+					setUserData(data.match);
+					setMobile(data.match.matchedUser?.mobile);
+				} else {
+					setUserData(null);
+				}
 			})
 			.catch((error) => {
 				console.error("Error fetching matched users:", error);
+				setUserData(null);
 			})
 			.finally(() => setLoading(false));
-	}, [id]);
+	}, [id,user?.id]);
 
 	if (loading) return <LoadingSpinner />;
-	if (!userData) return <div>No match found!</div>;
+	if (!userData)
+		return <div className="text-center text-gray-700 p-4">No match found!</div>;
 
 	return (
 		<div className="w-screen h-screen flex flex-col">
-			{/* Map Container - Adjust Height Based on Drawer */}
+			{/* Map Container */}
 			<div
 				className={`flex-grow transition-all ${
 					drawerOpen ? "h-1/2" : "h-[85vh]"
@@ -78,29 +80,30 @@ const ViewMatch = () => {
 				/>
 			</div>
 
-			{/* Drawer */}
+			{/* Drawer for Match Details */}
 			<Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
 				<DrawerContent className="h-[50vh] transition-all">
 					<div className="w-full h-full flex flex-col justify-evenly">
 						<DrawerHeader className="cursor-grab active:cursor-grabbing">
-							{/* <div className="w-12 h-1 bg-gray-400 rounded-full mx-auto my-2"></div> */}
 							<DrawerTitle>Match Details</DrawerTitle>
 							<DrawerDescription>
-								Matched with <strong>{userData.matchedUser}</strong>
+								Matched with{" "}
+								<strong>{userData.matchedUser?.name || "Unknown"}</strong>
 							</DrawerDescription>
 						</DrawerHeader>
 
 						<div className="p-4">
 							<p>
-								<b> Source:</b> {userData.userSourceName}
+								<b>Source:</b> {userData.userSourceName || "N/A"}
 							</p>
 							<p>
-								<b>Destination:</b> {userData.userDestinationName}
+								<b>Destination:</b> {userData.userDestinationName || "N/A"}
 							</p>
 							<p>
 								<b>Estimated Duration:</b> ~{" "}
-								{Math.floor(userData.tripDuration / 60)} mins
+								{Math.floor((userData.tripDuration || 0) / 60)} mins
 							</p>
+
 							<div className="flex flex-row justify-center space-x-5 mt-3">
 								<Link to="/call" className="w-1/3 block">
 									<Button
@@ -139,7 +142,9 @@ const ViewMatch = () => {
 					Show Match Details
 				</Button>
 			)}
-			<Button className="fixed top-4 left-12 transform -translate-x-1/2 bg-black text-white px-4 py-2 rounded-full shadow-lg">
+
+			{/* Back Button */}
+			<Button className="fixed top-4 left-12 bg-black text-white px-4 py-2 rounded-full shadow-lg">
 				<Link to="/matched-users">← Back</Link>
 			</Button>
 		</div>

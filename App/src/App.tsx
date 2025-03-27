@@ -1,5 +1,4 @@
-import { useState } from "react";
-import "./App.css";
+
 import {
 	BrowserRouter as Router,
 	Route,
@@ -14,6 +13,19 @@ import MatchedUsers from "./pages/MatchedUsers";
 import ViewMatch from "./pages/ViewMatch";
 import Chat from "./pages/Chat";
 import WebRTCComponent from "./pages/Webrtc";
+import NotFoundPage from "./pages/NotFoundPage"; // Import 404 Page
+import { useAuth } from "@clerk/clerk-react"; // Authentication Hook
+import { ReactElement } from "react";
+
+interface ProtectedRouteProps {
+	element: ReactElement;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
+	const { isSignedIn } = useAuth(); 
+	return isSignedIn ? element : <Navigate to="/signup" replace />;
+};
+
 
 function App() {
 	return (
@@ -21,15 +33,28 @@ function App() {
 			<Toaster richColors />
 			<Router>
 				<Routes>
+					{/* Public Routes */}
 					<Route path="/signup" element={<SignupPage />} />
+
+					{/* Private Routes (Requires Authentication) */}
 					<Route path="/" element={<Layout />}>
-						<Route path="/harsh" element={<>hello harsh</>} />
-						<Route path="/home" element={<SourceDestinationHome/>} />
-						<Route path="/matched-users" element={<MatchedUsers/>} />
-						<Route path="/view-match/:id" element={<ViewMatch/>} />
-						<Route path="/chat" element={<Chat></Chat>}></Route>
-						<Route path="/call" element={<WebRTCComponent></WebRTCComponent>}></Route>
+						<Route path="/harsh" element={<>Hello Harsh</>} />
+						<Route
+							path="/home"
+							element={<ProtectedRoute element={<SourceDestinationHome />} />}
+						/>
+						<Route
+							path="/matched-users"
+							element={<ProtectedRoute element={<MatchedUsers />} />}
+						/>
+						<Route
+							path="/view-match/:id"
+							element={<ProtectedRoute element={<ViewMatch />} />}
+						/>
 					</Route>
+
+					{/* 404 Not Found Page */}
+					<Route path="*" element={<NotFoundPage />} />
 				</Routes>
 			</Router>
 		</>

@@ -93,7 +93,7 @@ const dummyUsers = [
 				coordinates: [73.8567, 18.5204],
 			},
 			to: {
-				name: "Pune Railway Station",
+				name: "Dadawadi",
 				type: "Point",
 				coordinates: [73.8553, 18.5018],
 			},
