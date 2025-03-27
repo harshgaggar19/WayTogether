@@ -56,9 +56,9 @@ const MatchedUsersPage = () => {
 				matchedUsers.map((match: any, index: number) => (
 					<div
 						key={index}
-						className="border border-gray-500 text-black bg-gray-100 rounded-lg p-4 mb-4"
+						className="border border-gray-500 text-gray-600 bg-gray-100 rounded-lg p-4 mb-4 shadow-xl hover:shadow-2xl"
 					>
-						<h3 className="font-bold text-gray-800 text-lg underline underline-offset-4">
+						<h3 className="font-bold text-gray-800 text-2xl  underline-offset-4">
 							{match.matchedUser?.name || "Unknown User"}
 						</h3>
 						<p>

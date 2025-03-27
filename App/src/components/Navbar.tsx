@@ -28,7 +28,7 @@ const Navbar = () => {
 					<DropdownMenuSeparator />
 					<DropdownMenuGroup>
 						<DropdownMenuItem>
-							<div className="flex items-center justify-between w-full flex-row-reverse">
+							<div className="flex items-center justify-between w-full flex-row">
 								<UserButton  showName/>
 								{/* <span className="ml-2">User</span> */}
 							</div>

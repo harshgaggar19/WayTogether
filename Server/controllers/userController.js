@@ -10,14 +10,25 @@ import ActiveMatch from "../model/activeMatchModel.js";
 
 export const createUser = async (req, res) => {
 	try {
-		const { firstName, lastName, email, password,mobileNumber, clerkUserId } = req.body;
+		const { firstName, lastName, email, password, phone, clerkUserId } = req.body;
+		console.log(
+			"body:",
+			firstName,
+			lastName,
+			email,
+			password,
+			phone,
+			clerkUserId
+		);
 		console.log("inside create user");
 
-		if (!firstName || !lastName || !email || !password || mobileNumber|| !clerkUserId) {
+		if (!firstName || !lastName || !email || !password || !phone|| !clerkUserId) {
 			console.log("all feilds required");
 			return res.status(400).json({ error: "All fields are required." });
 		}
-		// Check if user already exists based on Clerk ID
+		// Check if user already exists based on Clerk IDz
+		let users = await User.find({});
+		console.log("users", users);
 		let existingUser = await User.findOne({ clerkUserId });
 		if (existingUser) {
 			return res.status(409).json({ error: "User already exists." });
@@ -28,11 +39,12 @@ export const createUser = async (req, res) => {
 			name: `${firstName} ${lastName}`,
 			email,
 			password,
-			mobileNumber,
+			phone,
 			clerkUserId,
 		});
 
-		await newUser.save();
+		const response = await newUser.save();
+		console.log("response:",response);
 		res
 			.status(201)
 			.json({ message: "User created successfully", user: newUser });
@@ -41,35 +53,6 @@ export const createUser = async (req, res) => {
 		res.status(500).json({ error: "Internal Server Error" });
 	}
 };
-// export const login = async (req, res) => {
-// 	try {
-// 		const clerkid = req.query.clerkid;
-// 		if (!clerkid) {
-// 			return res.status(400).json({
-// 				success: false,
-// 				message: "Email required",
-// 			});
-// 		}
-// 		const response = await User.findOne({ clerkid });
-// 		if (response) {
-// 			return res.status(200).json({
-// 				success: true,
-
-// 			});
-// 		} else {
-// 			return res.status(404).json({
-// 				success: false,
-// 				message: "No data found",
-// 			});
-// 		}
-// 	} catch (error) {
-// 		console.log(error);
-// 		return res.status(500).json({
-// 			success: false,
-// 			message: "Internal server error",
-// 		});
-// 	}
-// };
 
 export const findMatch = async (req, res) => {
 	const { from, to, fromName, toName, clerkUserId } = req.body; //lat, lng
@@ -98,8 +81,13 @@ export const findMatch = async (req, res) => {
 
 		const latitudes = route.coordinates.map((c) => c[1]);
 		const longitudes = route.coordinates.map((c) => c[0]);
+		const user = await User.findOne({ clerkUserId: clerkUserId });
+		if (!user) {
+			console.log("user not found");
+			return res.status(404).json({ message: "User not found" });
+		}
 
-		const users = await ActiveMatch.find({ isLookingForRide: true }).populate(
+		const users = await ActiveMatch.find({ isLookingForRide: true,user:{$ne: [user._id]} }).populate(
 			"user"
 		);
 		console.log("users: ------",users);
@@ -228,11 +216,7 @@ export const findMatch = async (req, res) => {
 			});
 		}
 
-		const user = await User.findOne({ clerkUserId: clerkUserId });
-		if (!user) {
-			console.log("user not found");
-			return res.status(404).json({ message: "User not found" });
-		}
+		
 let activeMatch = await ActiveMatch.findOne({ user: user._id });
 
 if (activeMatch) {
@@ -302,8 +286,11 @@ export const getMatchedUsers = async (req, res) => {
 		}
 
 		const activeMatch = await ActiveMatch.findOne({ user: user._id })
-			.populate("matchedUsers", "name email") // Populate basic user details
-			.populate("matchedUserDetails.matchedUser", "name email"); // Populate users inside matchedUserDetails
+			.populate("matchedUsers", "name email phone clerkUserId") // Populate basic user details
+			.populate(
+				"matchedUserDetails.matchedUser",
+				"name email phone clerkUserId"
+			); // Populate users inside matchedUserDetails
 
 		console.log(activeMatch);
 
@@ -331,7 +318,7 @@ export const getFinalMatch = async (req, res) => {
 
 		const activeMatch = await ActiveMatch.findOne({ user: user._id }).populate({
 			path: "matchedUserDetails.matchedUser",
-			select: "name email",
+			select: "name email phone clerkUserId",
 		});
 
 		// Ensure matchedUserDetails exists and is an array
@@ -360,3 +347,21 @@ export const points = (req, res) => {
 		.status(200)
 		.json({ puneStation: [73.8553, 18.5018], swargate: [73.8478, 18.5015] });
 };
+
+export const getCurrUser = async (req, res) => {
+	const { clerkUserId } = req.query;
+	console.log("clerkUserId:", clerkUserId);
+	if (!clerkUserId) {
+		return res.status(400).json({ error: "Clerk User ID is required" });
+	}
+	try {
+		const user = await User.findOne({ clerkUserId });
+		if (!user) {
+			return res.status(404).json({ message: "User not found" });
+		}
+		res.status(200).json({ user });
+	} catch (error) {
+		console.error("Error:", error);
+		res.status(500).json({ error: "Internal server error" });
+	}
+}

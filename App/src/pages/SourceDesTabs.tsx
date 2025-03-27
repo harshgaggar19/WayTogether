@@ -172,6 +172,7 @@ export function SourceDesTabs() {
 			}
 		} catch (error) {
 			console.error("Error submitting data:", error);
+			toast.error("Failed to submit data");
 		}
 	};
 

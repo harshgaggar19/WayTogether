@@ -11,51 +11,82 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 const ViewMatch = () => {
 	const { id } = useParams();
 	const [userData, setUserData] = useState<any | null>(null);
+	const [currUserData, setCurrUserData] = useState<any | null>(null);
+	const [roomId, setRoomId] = useState<string | null>(null);
+
 	const [loading, setLoading] = useState(true);
 	const [drawerOpen, setDrawerOpen] = useState(true);
-	const [mobile, setMobile] = useState(false);
+	const [mobile, setMobile] = useState<string>("");
 	const { user } = useUser();
 
+	useEffect(() => {
+		fetch(
+			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
+		)
+			.then((res) => res.json())
+			.then((data) => {
+				console.log("Fetched user data:", data);
+				if (data.user) {
+					setCurrUserData(data.user);
+				}
+			})
+			.catch((error) => {
+				console.error("Error fetching user data:", error);
+				toast.error("Error fetching current user data");
+			});
+	}, [user?.id]);
 	useEffect(() => {
 		if (!id || !user?.id) return;
 
 		setLoading(true);
-		fetch(`http://localhost:8080/users/get-match-final?clerkUserId=${user?.id}&matchedUserId=${id}`)
+		fetch(
+			`http://localhost:8080/users/get-match-final?clerkUserId=${user?.id}&matchedUserId=${id}`
+		)
 			.then((res) => res.json())
 			.then((data) => {
 				console.log("Fetched match data:", data);
 
-
-				if (data.match ) {
+				if (data.match) {
 					setUserData(data.match);
-					setMobile(data.match.matchedUser?.mobile);
+					setMobile(data.match.matchedUser?.phone);
 				} else {
 					setUserData(null);
 				}
 
-				// if (data.match?.matchedUser?.mobile && user?.primaryPhoneNumber?.phoneNumber) {
-				// 	fetch("http://localhost:8080/api/room", {
-				// 		method: "POST",
-				// 		headers: { "Content-Type": "application/json" },
-				// 		body: JSON.stringify({
-				// 			users: [user.primaryPhoneNumber.phoneNumber, data.match.matchedUser.mobile],
-				// 		}),
-				// 	})
-				// 		.then((res) => res.json())
-				// 		.then((roomData) => console.log("Room response:", roomData))
-				// 		.catch((err) => console.error("Error sending numbers:", err));
-				// }
+				if (data.match?.matchedUser?.phone && currUserData?.phone) {
+					fetch("http://localhost:8080/api/room", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							users: [currUserData.phone, data.match.matchedUser.mobile],
+						}),
+					})
+						.then((res) => res.json())
+						.then((roomData) => {
+							console.log("Room response:", roomData);
+							if (roomData.roomId) {
+								setRoomId(roomData.roomId);
+								// toast.success("Room created successfully!");
+							} else if (roomData) {
+								setRoomId(roomData);
+							} else {
+								toast.error("Error creating room!");
+							}
+						})
+						.catch((err) => console.error("Error sending numbers:", err));
+				}
 			})
 			.catch((error) => {
 				console.error("Error fetching matched users:", error);
 				setUserData(null);
 			})
 			.finally(() => setLoading(false));
-	}, [id,user?.id]);
+	}, [id, user?.id, currUserData]);
 
 	if (loading) return <LoadingSpinner />;
 	if (!userData)
@@ -126,7 +157,7 @@ const ViewMatch = () => {
 										Call
 									</Button>
 								</Link>
-								<Link to="/chat" className="w-1/3 block">
+								<Link to={`/chat?${roomId}`} className="w-1/3 block">
 									<Button
 										variant="outline"
 										className="bg-black text-white w-full"
@@ -157,7 +188,7 @@ const ViewMatch = () => {
 			)}
 
 			{/* Back Button */}
-			<Button className="fixed top-4 left-12 bg-black text-white px-4 py-2 rounded-full shadow-lg">
+			<Button className="fixed top-4 left-4 bg-black text-white px-4 py-2 rounded-full shadow-lg">
 				<Link to="/matched-users">← Back</Link>
 			</Button>
 		</div>

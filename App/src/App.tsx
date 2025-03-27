@@ -16,13 +16,18 @@ import WebRTCComponent from "./pages/Webrtc";
 import NotFoundPage from "./pages/NotFoundPage"; // Import 404 Page
 import { useAuth } from "@clerk/clerk-react"; // Authentication Hook
 import { ReactElement } from "react";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 interface ProtectedRouteProps {
 	element: ReactElement;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
-	const { isSignedIn } = useAuth(); 
+	const { isSignedIn, isLoaded } = useAuth();
+
+	// Wait until Clerk loads before making a decision
+	if (!isLoaded) return <LoadingSpinner/>; // or show a loading spinner
+
 	return isSignedIn ? element : <Navigate to="/signup" replace />;
 };
 

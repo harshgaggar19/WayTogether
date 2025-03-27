@@ -131,8 +131,8 @@ async function seedDatabase() {
 			"mongodb+srv://harshgaggar455:4xsqMX7RS.wQh8_@cluster0.fwnsn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 		); // Update with your MongoDB details
 		await User.deleteMany({});
-		await User.insertMany(dummyUsers);
-		console.log("Dummy users inserted successfully");
+		// await User.insertMany(dummyUsers);
+		console.log("deleted successfully");
 	} catch (error) {
 		console.error("Error inserting dummy users:", error);
 	} finally {

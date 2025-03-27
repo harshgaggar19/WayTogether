@@ -11,7 +11,7 @@ import {
 	InputOTPSeparator,
 	InputOTPSlot,
 } from "../components/ui/input-otp";
-import { EyeClosed, EyeIcon, Loader2Icon } from "lucide-react";
+import { CloudHail, EyeClosed, EyeIcon, Loader2Icon } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useState } from "react";
 
@@ -31,8 +31,8 @@ export default function SignupPage() {
 	const { isLoaded, signUp, setActive } = useSignUp();
 	const { signIn } = useSignIn();
 	const [emailAddress, setEmailAddress] = useState("");
-	
-const [mobileNumber, setMobileNumber] = useState("");
+
+	const [phone, setPhone] = useState("");
 	const [password, setPass] = useState("");
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -96,9 +96,11 @@ const [mobileNumber, setMobileNumber] = useState("");
 	const submit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (!isLoaded) {
+			console.log("!isLoaded ");
 			return;
 		}
 		try {
+			console.log("inside submit");
 			setsubMessage("Signing In...");
 			await signUp.create({
 				firstName: firstName,
@@ -106,6 +108,8 @@ const [mobileNumber, setMobileNumber] = useState("");
 				emailAddress: emailAddress,
 				password: password,
 			});
+			console.log("response1:");
+
 			await signUp
 				.prepareEmailAddressVerification({
 					strategy: "email_code",
@@ -113,8 +117,11 @@ const [mobileNumber, setMobileNumber] = useState("");
 				.catch((error) =>
 					console.log("Email Verification Prep Error:", error.errors || error)
 				);
+			console.log("response2");
 			setPendingVerification(true);
+			console.log(pendingVerification);
 			setsubMessage("Done!!");
+			console.log("done submitting");
 		} catch (error: any) {
 			console.log(error);
 			setsubMessage("Try Again!!..");
@@ -131,6 +138,7 @@ const [mobileNumber, setMobileNumber] = useState("");
 
 		try {
 			setsubVerify("Verifying ...");
+			console.log("verifying");
 
 			// Attempt email verification
 			const CompleteSignUp = await signUp.attemptEmailAddressVerification({
@@ -146,7 +154,7 @@ const [mobileNumber, setMobileNumber] = useState("");
 				setsubVerify("Not Verified");
 				return;
 			}
-			const clerkUserId = CompleteSignUp.createdUserId; 
+			const clerkUserId = CompleteSignUp.createdUserId;
 			// Proceed only if verification is successful
 			try {
 				const response = await axios.post(
@@ -156,7 +164,7 @@ const [mobileNumber, setMobileNumber] = useState("");
 						lastName,
 						email: emailAddress,
 						password,
-						mobileNumber,
+						phone,
 						clerkUserId,
 					},
 					{
@@ -190,7 +198,6 @@ const [mobileNumber, setMobileNumber] = useState("");
 			setsubVerify("Not Verified");
 		}
 	};
-
 
 	return (
 		<>
@@ -261,11 +268,11 @@ const [mobileNumber, setMobileNumber] = useState("");
 										<LabelInputContainer className="mb-4">
 											<Label htmlFor="mobile">Mobile Number</Label>
 											<Input
-												value={mobileNumber}
+												value={phone}
 												id="mobile"
 												placeholder="+91 9876543210"
 												type="tel"
-												onChange={(e) => setMobileNumber(e.target.value)}
+												onChange={(e) => setPhone(e.target.value)}
 											/>
 										</LabelInputContainer>
 										<LabelInputContainer className="mb-4 ">

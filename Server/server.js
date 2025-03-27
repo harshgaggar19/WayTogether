@@ -3,15 +3,16 @@ import express from 'express';
 import connect from './database/conn.js';
 import dotenv from "dotenv";
 import usersRouter from "./routes/userRoute.js";
+import fetch from 'node-fetch';
 dotenv.config();
 import cors from 'cors';
 import { getChat } from './fetch/getchat.js';
 import './control/chat.js';
 import {makeGroup} from './control/room.js'
-import { createUser } from "./controllers/userController.js";
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 8080;
+app.use(cors());
 
 
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +27,8 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
-app.post("/signup", createUser);
+// app.post("/signup", createUser);
+app.use("/users", usersRouter);
 app.post("/api/places", async (req, res) => {
     console.log(req.body);
     res.json({ message: "received" });
