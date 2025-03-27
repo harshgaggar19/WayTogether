@@ -2,7 +2,7 @@ import Chat from '../model/chat.model.js';
 
 export async function getChat(req, res) {
     console.log("Chat request received");
-    const { roomId } = req.body;
+    const { roomId } = req.query;
     console.log("Room ID:", roomId);
 
     try {

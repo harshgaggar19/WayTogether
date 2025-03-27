@@ -1,12 +1,15 @@
 /// <reference types="google.maps" />
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface MapDisplayProps {
 	source: { lat: number; lng: number } | null;
 	destination: { lat: number; lng: number } | null;
 	userLocation: { lat: number; lng: number } | null;
 }
+type PointsType = {
+	[key: string]: [number, number]; // Each key has an array of two numbers (lat, lng)
+};
 
 export function Mapdisplay({
 	source,
@@ -14,6 +17,17 @@ export function Mapdisplay({
 	userLocation,
 }: MapDisplayProps) {
 	const mapRef = useRef<HTMLDivElement>(null);
+	const [points, setPoints] = useState<PointsType>({});
+
+	useEffect(() => {
+		const response = fetch("http://localhost:8080/users/dummy-points")
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data)
+				setPoints(data || []);
+			})
+	 },[]);
+		
 
 	useEffect(() => {
 		if (
@@ -29,6 +43,20 @@ export function Mapdisplay({
 				disableDefaultUI: true,
 			});
 
+			if (
+				points &&
+				points.swargate &&
+				Array.isArray(points.swargate) &&
+				points.swargate.length === 2
+			) {
+				new google.maps.Marker({
+					position: { lat: points.swargate[0], lng: points.swargate[1] },
+					map,
+					title: "",
+				});
+			} else {
+				console.error("Invalid or missing coordinates for Swargate:", points);
+			}
 			// User Location Marker
 			if (userLocation) {
 				new google.maps.Marker({

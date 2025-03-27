@@ -9,7 +9,12 @@
     "express": "^4.21.2",
     "mongo": "^0.1.0",
     "mongoose": "^8.9.5",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "redis": "^4.7.0",
+    "twilio": "^5.5.1",
+    "uuid": "^11.1.0",
+    "websockets": "^0.2.0",
+    "ws": "^8.18.1"
   },
   "type": "module"
 }
