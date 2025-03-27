@@ -36,6 +36,19 @@ const ViewMatch = () => {
 				} else {
 					setUserData(null);
 				}
+
+				// if (data.match?.matchedUser?.mobile && user?.primaryPhoneNumber?.phoneNumber) {
+				// 	fetch("http://localhost:8080/api/room", {
+				// 		method: "POST",
+				// 		headers: { "Content-Type": "application/json" },
+				// 		body: JSON.stringify({
+				// 			users: [user.primaryPhoneNumber.phoneNumber, data.match.matchedUser.mobile],
+				// 		}),
+				// 	})
+				// 		.then((res) => res.json())
+				// 		.then((roomData) => console.log("Room response:", roomData))
+				// 		.catch((err) => console.error("Error sending numbers:", err));
+				// }
 			})
 			.catch((error) => {
 				console.error("Error fetching matched users:", error);

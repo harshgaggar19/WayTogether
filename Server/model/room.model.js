@@ -3,7 +3,6 @@ const room=new mongoose.Schema({
     users:{
         type:Array
     },
-    name:String,
     roomId:{
         type:String,
         unique:true

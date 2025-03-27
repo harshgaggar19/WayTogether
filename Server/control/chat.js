@@ -46,6 +46,9 @@ wss.on("connection", (socket) => {
             console.log(`Broadcasting message to room ${payload.roomId}`);
             console.log(payload.sender);
 
+            const users=await User.find();
+            console.log(users);
+
             const sender = await User.findOne({ phone: payload.sender });
             if (!sender) {
                 console.log("Sender not found:", payload.sender);

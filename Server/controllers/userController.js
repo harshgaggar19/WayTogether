@@ -5,7 +5,7 @@ import {
 	getRoutePoints,
 	haversine,
 } from "../utils/userUtils.js";
-import redisClient from "../redisClient.js";
+
 import ActiveMatch from "../model/activeMatchModel.js";
 
 export const createUser = async (req, res) => {

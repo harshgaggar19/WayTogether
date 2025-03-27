@@ -55,6 +55,8 @@ function App() {
 
 					{/* 404 Not Found Page */}
 					<Route path="*" element={<NotFoundPage />} />
+					<Route path="/chat" element={<Chat></Chat>}></Route>
+					<Route path="/call" element={<WebRTCComponent></WebRTCComponent>}></Route>
 				</Routes>
 			</Router>
 		</>

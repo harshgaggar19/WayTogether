@@ -5,7 +5,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<{ message: string; sender: string }[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const currentUserId = "67e28692007292a7c1442620"; // Your user ID
-  const roomId = "f3b33884-17e6-4aa8-9357-bd03a77b4b40";
+  const roomId = "b8f836c8-9d75-5f70-b90e-86b9c7981449";
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
 
@@ -79,7 +79,7 @@ const Chat = () => {
         </button>
         <h2 className="text-xl font-bold">Chat</h2>
       </div>
-      <a href="tel:+919561009042">Call Now</a>
+      {/* <a href="tel:+919561009042">Call Now</a> */}
 
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (

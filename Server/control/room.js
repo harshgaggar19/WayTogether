@@ -6,7 +6,7 @@ const NAMESPACE = "e87a7d1e-7ebf-4e2d-9e4a-6b78bf4d7b89"; // Fixed namespace
 
 export async function makeGroup(req, res) {
   try {
-    const { users, name } = req.body;
+    const { users } = req.body;
     
     if (users.length < 2) {
       return res.status(400).json({ message: "A group must have at least 2 users" });
@@ -36,7 +36,7 @@ export async function makeGroup(req, res) {
 
     // Create a new room entry
     const room = new roomUser({
-      name,
+     
       roomId,
       users: sortedUsers,
     });
