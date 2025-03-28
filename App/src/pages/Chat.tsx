@@ -1,12 +1,37 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { toast } from "sonner";
 
 const Chat = () => {
+  const {user} = useUser();
   const [messages, setMessages] = useState<{ message: string; sender: string }[]>([]);
+  
+    const [currUserData, setCurrUserData] = useState<any | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  const currentUserId = "67e28692007292a7c1442620"; // Your user ID
-  const roomId = "b8f836c8-9d75-5f70-b90e-86b9c7981449";
+  const currentUserId = user?.id;
+  // Your user ID
+  const {roomId} = useParams<{ roomId: string }>();
   const [socket, setSocket] = useState<WebSocket | null>(null);
+
+
+  useEffect(() => {
+		fetch(
+			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
+		)
+			.then((res) => res.json())
+			.then((data) => {
+				console.log("Fetched user data:", data);
+				if (data.user) {
+					setCurrUserData(data.user);
+				}
+			})
+			.catch((error) => {
+				console.error("Error fetching user data:", error);
+				toast.error("Error fetching current user data");
+			});
+	}, [user?.id]);
 
 
   useEffect(() => {
@@ -59,12 +84,12 @@ const Chat = () => {
     const messageData = {
       type: "Chat",
       roomId,
-      sender: "9123456789",
+      sender: currUserData?.phone,
       message: newMessage,
     };
 
     socket.send(JSON.stringify(messageData));
-    setMessages((prev) => [...prev, { message: newMessage, sender:"67e28692007292a7c1442620" }]);
+    setMessages((prev) => [...prev, { message: newMessage, sender: currUserData?.phone }]);
     setNewMessage("");
   };
 

@@ -82,7 +82,7 @@ export default function SignupPage() {
 						description: "You have successfully logged in!",
 					});
 					setsubMessage1("Logged In");
-					navigate("/");
+					navigate("/home");
 				}
 			}
 		} catch (error: any) {
