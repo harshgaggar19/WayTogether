@@ -36,10 +36,11 @@ export const findUserWithinRadius = (userLocations, lat, lon, radius = 1) => {
 async function returnData(coordinates) {
 	
 	const query = await fetch(
-		`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${coordinates}?geometries=geojson&access_token=${process.env.MAPBOX_ACCESS_TOKEN}`
+		`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${coordinates}?geometries=geojson&access_token=pk.eyJ1IjoibWR0b3VzaWYwMDciLCJhIjoiY2x4dHplOGh4MWw3eTJqcXl4dWM5eHU2NiJ9.69lnpa9uRrPPxXUfhOPeyg`
 	);
 
 	const data = await query.json();
+	console.log("Data : ",data);
 	return data;
 }
 
@@ -49,6 +50,7 @@ function create_string(a, b) {
 
 export const findMostOptimalRoute = async(sources, destination) => {
   let optimalSequence = [];
+  console.log("Hello", sources,destination)
   let data1 = await returnData(
 		create_string(sources[0], sources[1]) +
 			";" +
@@ -86,7 +88,12 @@ export const getRoutePoints = async (a, b) => {
 	);
 	const data_b = await query_b.json();
 	// console.log(data_b);
-	const route_b = data_b.routes[0].geometry;
+	// const route_b = data_b.routes[0]?.geometry;
+	if (!data_b || !data_b.routes || data_b.routes.length === 0) {
+		console.error("No route data available:", data_b);
+	} else {
+		const route_b = data_b.routes[0].geometry;
+	}
 	// console.log(route_b);
 	return route_b;
 }

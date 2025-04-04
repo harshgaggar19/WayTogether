@@ -12,11 +12,13 @@ import SourceDestinationHome from "./pages/SourceDestinationHome";
 import MatchedUsers from "./pages/MatchedUsers";
 import ViewMatch from "./pages/ViewMatch";
 import Chat from "./pages/Chat";
-import WebRTCComponent from "./pages/Webrtc";
+
 import NotFoundPage from "./pages/NotFoundPage"; // Import 404 Page
 import { useAuth } from "@clerk/clerk-react"; // Authentication Hook
 import { ReactElement } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
+import ChatRooms from "./pages/Allchats";
+import { WebSocketProvider } from "./pages/Websocket";
 
 interface ProtectedRouteProps {
 	element: ReactElement;
@@ -36,6 +38,7 @@ function App() {
 	return (
 		<>
 			<Toaster richColors />
+			<WebSocketProvider>
 			<Router>
 				<Routes>
 					{/* Public Routes */}
@@ -60,10 +63,12 @@ function App() {
 
 					{/* 404 Not Found Page */}
 					<Route path="*" element={<NotFoundPage />} />
-					<Route path="/chat" element={<Chat></Chat>}></Route>
-					<Route path="/call" element={<WebRTCComponent></WebRTCComponent>}></Route>
+					<Route path="/chat/:roomId" element={<Chat></Chat>}></Route>
+					<Route path="/allchat/:phone" element={<ChatRooms></ChatRooms>}></Route>
+			
 				</Routes>
 			</Router>
+			</WebSocketProvider>
 		</>
 	);
 }

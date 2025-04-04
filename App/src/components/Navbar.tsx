@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -11,9 +11,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AlignJustifyIcon } from "lucide-react";
 import { UserButton, useAuth } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom"; 
 
 const Navbar = () => {
-	const { signOut } = useAuth(); // Import logout function
+	const navigate = useNavigate();
+	const { userId, signOut } = useAuth(); // Import logout function
+	console.log("UseID : ",userId);
+	const [currentUserId,setcurrentUserId]=useState();
+	useEffect(()=>{
+		if(!userId) return;
+			fetch(
+				`http://localhost:8080/users/get-current-user?clerkUserId=${userId}`
+			)
+				.then((res) => res.json())
+				.then((data) => {
+					console.log("Fetched user data 1 :", data);
+					if (data.user) {
+			  console.log("CurrentPhone",data.user.phone);
+						
+			  setcurrentUserId(data.user.phone);
+					}
+				})
+				.catch((error) => {
+					console.error("Error fetching user data:", error);
+					
+				});
+				
+			
+		},[userId])
 
 	return (
 		<div className="absolute top-4 right-4 z-50">
@@ -32,6 +57,9 @@ const Navbar = () => {
 								<UserButton  showName/>
 								{/* <span className="ml-2">User</span> */}
 							</div>
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => navigate(`/allchat/${currentUserId}`)}>
+							Chats
 						</DropdownMenuItem>
 					</DropdownMenuGroup>
 					<DropdownMenuSeparator />

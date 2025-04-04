@@ -61,15 +61,16 @@ export const findMatch = async (req, res) => {
 	if (!clerkUserId) {
 		return res.status(400).json({ error: "Clerk User ID is required" });
 	}
-	console.log("User's Source:", from);
-	console.log("User's Destination:", to);
+	// console.log("User's Source:", from);
+	// console.log("User's Destination:", to);
 	const result = [];
 	try {
 		const query = await fetch(
-			`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${from.lng},${from.lat};${to.lng},${to.lat}?geometries=geojson&access_token=${process.env.MAPBOX_ACCESS_TOKEN}`
+			`https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${from.lng},${from.lat};${to.lng},${to.lat}?geometries=geojson&access_token=pk.eyJ1IjoibWR0b3VzaWYwMDciLCJhIjoiY2x4dHplOGh4MWw3eTJqcXl4dWM5eHU2NiJ9.69lnpa9uRrPPxXUfhOPeyg`
 		);
 
 		const data = await query.json();
+		// console.log(data);
 		if (!data.routes || data.routes.length === 0) {
 			return res.status(400).json({ message: "No routes found" });
 		}
@@ -157,7 +158,7 @@ export const findMatch = async (req, res) => {
 									userLocations[userMatch].destination.latitude,
 								]
 							);
-							console.log(routeB);
+							// console.log(routeB);
 							const latitudesB = routeB.coordinates.map((c) => c[1]);
 							const longitudesB = routeB.coordinates.map((c) => c[0]);
 							//find user destination in user_b ka path
@@ -292,7 +293,7 @@ export const getMatchedUsers = async (req, res) => {
 				"name email phone clerkUserId"
 			); // Populate users inside matchedUserDetails
 
-		console.log(activeMatch);
+		// console.log(activeMatch);
 
 		if (!activeMatch) {
 			return res.status(404).json({ message: "No matched users found." });
