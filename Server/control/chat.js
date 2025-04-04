@@ -9,12 +9,14 @@ dotenv.config();
 const wss = new WebSocketServer({ port: 8081 });
 export const allsockets = [];
 export const usersockets=[];
+
 wss.on("connection", (socket) => {
     console.log("Client connected");
     
 
     let roomId = null;
     let userId=null;
+    let socketType = null; 
     socket.on("message", async (message) => {
         console.log("Received message");
         
@@ -24,11 +26,13 @@ wss.on("connection", (socket) => {
         if(payload.type==='connect')
         {
            userId=payload.userId;
+           socketType = "notification";
            usersockets.forEach((client, index) => {
                 if (client.socket === socket) {
                     usersockets.splice(index, 1);
                 }
             });
+            socketType = "chat"; 
 
 
             usersockets.push({ socket, userId});
@@ -128,12 +132,27 @@ wss.on("connection", (socket) => {
 
     socket.on('close', () => {
         console.log("Client disconnected");
-
-        // Remove socket from allsockets array when disconnected
-        const index = allsockets.findIndex(client => client.socket === socket);
-        if (index !== -1) {
-            allsockets.splice(index, 1);
-            console.log("Socket removed from room");
+        if (socketType === "chat") {
+            const index = allsockets.findIndex(client => client.socket === socket);
+            if (index !== -1) {
+                allsockets.splice(index, 1);
+                console.log("Chat socket removed from room");
+            }
         }
+
+        if (socketType === "notification") {
+            const index = usersockets.findIndex(client => client.socket === socket);
+            if (index !== -1) {
+                usersockets.splice(index, 1);
+                console.log("Notification socket removed");
+            }
+        }
+
+        // // Remove socket from allsockets array when disconnected
+        // const index = allsockets.findIndex(client => client.socket === socket);
+        // if (index !== -1) {
+        //     allsockets.splice(index, 1);
+        //     console.log("Socket removed from room");
+        // }
     });
 });

@@ -59,7 +59,7 @@ const Navbar = () => {
 							</div>
 						</DropdownMenuItem>
 						<DropdownMenuItem onClick={() => navigate(`/allchat/${currentUserId}`)}>
-							Chats
+							All Chats
 						</DropdownMenuItem>
 					</DropdownMenuGroup>
 					<DropdownMenuSeparator />
