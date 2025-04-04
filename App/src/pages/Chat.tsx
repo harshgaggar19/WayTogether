@@ -1,30 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useContext  } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { toast } from "sonner";
+import { useWebSocket } from "../pages/Websocket";
 
 const Chat = () => {
+  const { removeNotification } = useWebSocket(); 
   const {user} = useUser();
+ 
+  // console.log("Hell",user);
   const [messages, setMessages] = useState<{ message: string; sender: string }[]>([]);
   
     const [currUserData, setCurrUserData] = useState<any | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  const currentUserId = user?.id;
+  // const currentUserId = user?.id;
+  const [currentUserId,setcurrentUserId]=useState();
   // Your user ID
   const {roomId} = useParams<{ roomId: string }>();
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
-
+// console.log(roomId);
   useEffect(() => {
 		fetch(
 			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
 		)
 			.then((res) => res.json())
 			.then((data) => {
-				console.log("Fetched user data:", data);
+				// console.log("Fetched user data:", data);
 				if (data.user) {
+          // console.log("CurrentID",data.user._id);
 					setCurrUserData(data.user);
+          setcurrentUserId(data.user._id);
 				}
 			})
 			.catch((error) => {
@@ -33,11 +40,20 @@ const Chat = () => {
 			});
 	}, [user?.id]);
 
+ 
+
+  useEffect(() => {
+      if (roomId && removeNotification) {
+          removeNotification(roomId); // Remove notifications for this chat room
+      }
+  }, [roomId, removeNotification]);
+
 
   useEffect(() => {
     // Fetch previous chat messages
     const fetchChat = async () => {
       try {
+        console.log("RoomId",roomId);
         const response = await axios.get(
           `http://localhost:8080/api/getchat?roomId=${roomId}`
         );
@@ -80,19 +96,27 @@ const Chat = () => {
 
   const sendMessage = () => {
     if (!newMessage.trim() || !socket) return;
-
+    console.log("RID : ",roomId);
     const messageData = {
       type: "Chat",
       roomId,
       sender: currUserData?.phone,
       message: newMessage,
     };
+   
+    const notifyData = {
+      type: "Notification",
+      roomId:roomId,
+      sender: currUserData?.phone,
+      message: newMessage,
+    };
 
     socket.send(JSON.stringify(messageData));
+    socket.send(JSON.stringify(notifyData));
     setMessages((prev) => [...prev, { message: newMessage, sender: currUserData?.phone }]);
     setNewMessage("");
   };
-
+  //console.log("USer",currentUserId,currUserData?.phone);
   return (
     <div className="flex flex-col h-screen bg-white text-black">
       <div className="flex items-center p-4 border-b border-gray-300">
@@ -110,11 +134,11 @@ const Chat = () => {
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`mb-4 flex ${msg.sender === currentUserId ? "justify-end" : "justify-start"}`}
+            className={`mb-4 flex ${msg.sender === currentUserId || msg.sender===currUserData?.phone ? "justify-end" : "justify-start"}`}
           >
             <div
               className={`p-2 max-w-xs rounded-lg ${
-                msg.sender === currentUserId ? "bg-gray-300 text-black" : "bg-black text-white"
+                msg.sender === currentUserId|| msg.sender===currUserData?.phone ? "bg-gray-300 text-black" : "bg-black text-white"
               }`}
             >
               {msg.message}

@@ -7,7 +7,7 @@ const NAMESPACE = "e87a7d1e-7ebf-4e2d-9e4a-6b78bf4d7b89"; // Fixed namespace
 export async function makeGroup(req, res) {
   try {
     const { users } = req.body;
-    
+    console.log(users);
     if (users.length < 2) {
       return res.status(400).json({ message: "A group must have at least 2 users" });
     }

@@ -21,9 +21,10 @@ const ViewMatch = () => {
 
 	const [loading, setLoading] = useState(true);
 	const [drawerOpen, setDrawerOpen] = useState(true);
-	const [mobile, setMobile] = useState<string>("");
+	//const [mobile, setMobile] = useState<string>("");
 	const { user } = useUser();
-
+	console.log(user?.id);
+	 
 	useEffect(() => {
 		fetch(
 			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
@@ -40,6 +41,7 @@ const ViewMatch = () => {
 				toast.error("Error fetching current user data");
 			});
 	}, [user?.id]);
+
 	useEffect(() => {
 		if (!id || !user?.id) return;
 
@@ -50,20 +52,21 @@ const ViewMatch = () => {
 			.then((res) => res.json())
 			.then((data) => {
 				console.log("Fetched match data:", data);
-
+				console.log(data.match);
 				if (data.match) {
+					console.log(data.match);
 					setUserData(data.match);
-					setMobile(data.match.matchedUser?.phone);
+					//setMobile(data.match.matchedUser?.phone);
 				} else {
 					setUserData(null);
 				}
-
+				console.log(currUserData.phone,data.match.matchedUser.phone);
 				if (data.match?.matchedUser?.phone && currUserData?.phone) {
 					fetch("http://localhost:8080/api/room", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
-							users: [currUserData.phone, data.match.matchedUser.mobile],
+							users: [currUserData.phone, data.match.matchedUser.phone],
 						}),
 					})
 						.then((res) => res.json())
@@ -89,6 +92,7 @@ const ViewMatch = () => {
 	}, [id, user?.id, currUserData]);
 
 	if (loading) return <LoadingSpinner />;
+	console.log(userData);
 	if (!userData)
 		return <div className="text-center text-gray-700 p-4">No match found!</div>;
 
@@ -149,15 +153,54 @@ const ViewMatch = () => {
 							</p>
 
 							<div className="flex flex-row justify-center space-x-5 mt-3">
-								<Link to="/call" className="w-1/3 block">
+								{/* <Link to="/call" className="w-1/3 block">
 									<Button
 										variant="outline"
 										className="bg-black text-white w-full"
 									>
 										Call
 									</Button>
-								</Link>
-								<Link to={`/chat?${roomId}`} className="w-1/3 block">
+								</Link> */}
+					<Link
+	to="#"
+	onClick={async (e) => {
+		e.preventDefault();
+		if (userData.matchedUser?.phone === "9561009042") {
+			try {
+				const res = await fetch("http://localhost:8080/api/call", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						to: "+919561009042",
+					}),
+				});
+
+				const result = await res.json();
+				if (res.ok) {
+					toast.success("Call placed successfully!");
+					console.log("Call SID:", result.callSid);
+				} else {
+					toast.error(result.error || "Failed to place call");
+				}
+			} catch (error) {
+				console.error("Call error:", error);
+				toast.error("Error placing call");
+			}
+		} else {
+			toast.warning("This user is not allowed for calling.");
+		}
+	}}
+	className="w-1/3 block"
+>
+	<Button variant="outline" className="w-full text-sm py-1 bg-black text-white">
+		Call
+	</Button>
+</Link>
+
+
+								<Link to={`/chat/${roomId}`} className="w-1/3 block">
 									<Button
 										variant="outline"
 										className="bg-black text-white w-full"

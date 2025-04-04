@@ -151,7 +151,7 @@ export function SourceDesTabs() {
 	const handleSubmit = async () => {
 		// console.log(sourceCoords,destinationCoords)
 		
-		console.log(formData);
+		console.log(formData,sourceCoords,destinationCoords,user?.id);
 		try {
 			setSubmitting(true);
 			const response = await axios.post(
@@ -180,9 +180,20 @@ export function SourceDesTabs() {
 			} else {
 				toast.error(response.data.message);
 			}
-		} catch (error) {
-			console.error("Error submitting data:", error);
-			toast.error("Failed to submit data");
+		} catch (error: unknown) {
+			if (axios.isAxiosError(error)) {
+				// Axios-specific error
+				console.error("Axios error:", error.response?.data || error.message);
+				toast.error(error.response?.data?.message || "Failed to submit data");
+			} else if (error instanceof Error) {
+				// General JavaScript error
+				console.error("General error:", error.message);
+				toast.error(error.message || "An unexpected error occurred");
+			} else {
+				// Unknown error type
+				console.error("Unexpected error:", error);
+				toast.error("An unknown error occurred");
+			}
 		}
 	};
 
