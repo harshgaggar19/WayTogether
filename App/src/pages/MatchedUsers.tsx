@@ -1,14 +1,49 @@
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { match } from "assert";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
+import axios from "axios";
+import { toast } from "sonner";
 // import { FaMapMarkerAlt } from "react-icons/fa";
 
 const MatchedUsersPage = () => {
 	const [matchedUsers, setMatchedUsers] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const { user } = useUser();
+	  const location = useLocation();
+	const { message } = location.state || {};
+	const navigate = useNavigate();
+	const [refresh, setRefresh] = useState(false);
+	// const [PreviousMessages, setPreviousMessages] = useState<string[]>([]);
+
+	const handleRefresh = async () => {
+		if (!message) return;
+		try {
+			// setSubmitting(true);
+			const response = await axios.post(
+				"http://localhost:8080/users/find-match",
+				{message},
+				{
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			);
+			// const data = await response.json();
+			console.log("Response from backend:", response);
+			if (response.status == 200) {
+				setRefresh(!refresh);
+				
+			} else {
+				toast.error(response.data.message);
+			}
+		} catch (error) {
+			console.error("Error submitting data:", error);
+			toast.error("Failed to submit data");
+		}
+	 }
+
 
 	useEffect(() => {
 		if (!user?.id) return;
@@ -32,13 +67,15 @@ const MatchedUsersPage = () => {
 				console.error("Error fetching matched users:", error);
 			})
 			.finally(() => setLoading(false));
-	}, [user?.id]);
+	}, [user?.id,refresh]);
 
 	return (
 		<div className="p-4 max-w-md mx-auto">
 			<Link to="/home">
 				<button className="text-gray-600 flex items-center mb-4">← Back</button>
 			</Link>
+
+			<button className="text-gray-600 flex items-center mb-4" onClick={handleRefresh}>Refresh</button>
 
 			<h2 className="text-xl font-bold text-gray-800">
 				Available passengers for ride

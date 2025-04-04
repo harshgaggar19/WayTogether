@@ -166,7 +166,17 @@ export function SourceDesTabs() {
 			// const data = await response.json();
 			console.log("Response from backend:", response);
 			if(response.status == 200){
-				navigate("/matched-users");
+				navigate("/matched-users", {
+					state: {
+						message: {
+							from: sourceCoords,
+							to: destinationCoords,
+							fromName: formData.from,
+							toName: formData.to,
+							clerkUserId: user?.id,
+						}
+					},
+				});
 			} else {
 				toast.error(response.data.message);
 			}

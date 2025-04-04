@@ -35,7 +35,11 @@ app.post("/api/places", async (req, res) => {
 });
 
 app.get("/api/getchat", getChat); // To get chat in room
-app.post("/api/room",makeGroup);// To contact with new person
+app.post("/api/room", makeGroup);// To contact with new person
+app.use("/users/*", (req, res) => {
+    res.status(404).json({ message: "Route not found" });
+    
+})
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
