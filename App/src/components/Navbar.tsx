@@ -13,11 +13,13 @@ import { AlignJustifyIcon } from "lucide-react";
 import { UserButton, useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom"; 
 
+//updated 
 const Navbar = () => {
 	const navigate = useNavigate();
 	const { userId, signOut } = useAuth(); // Import logout function
 	console.log("UseID : ",userId);
 	const [currentUserId,setcurrentUserId]=useState();
+	console.log(currentUserId);
 	useEffect(()=>{
 		if(!userId) return;
 			fetch(
