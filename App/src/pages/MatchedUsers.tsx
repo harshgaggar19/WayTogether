@@ -1,18 +1,18 @@
 import LoadingSpinner from "@/components/LoadingSpinner";
-import React, { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import  { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import axios from "axios";
 import { useWebSocket } from "./Websocket";
 import { toast } from "sonner";
 import { IoNotificationsOutline, IoNotifications } from "react-icons/io5";
-import { match } from "assert";
+// import { match } from "assert";
 // import { FaMapMarkerAlt } from "react-icons/fa";
 
 const MatchedUsersPage = () => {
 	const [matchedUsers, setMatchedUsers] = useState<any[]>([]);
-	const [updateTrigger, setUpdateTrigger] = useState(0);
-	const wsRef = useRef<WebSocket | null>(null);
+	// const [updateTrigger, setUpdateTrigger] = useState(0);
+	// const wsRef = useRef<WebSocket | null>(null);
 	const [loading, setLoading] = useState(true);
 	const { user } = useUser();
 	const [userId, setUserId] = useState();
@@ -21,8 +21,6 @@ const MatchedUsersPage = () => {
 	// const [socket,setSocket]=useState();
 	const { notifications, connectWebSocket } = useWebSocket();
 	const [showDropdown, setShowDropdown] = useState(false);
-	const location = useLocation();
-	const navigate = useNavigate();
 	const [refresh, setRefresh] = useState(false);
 	
 	const backend_url = import.meta.env.VITE_BACKEND_URL;

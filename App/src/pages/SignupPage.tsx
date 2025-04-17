@@ -11,7 +11,7 @@ import {
 	InputOTPSeparator,
 	InputOTPSlot,
 } from "../components/ui/input-otp";
-import { CloudHail, EyeClosed, EyeIcon, Loader2Icon } from "lucide-react";
+import {  EyeClosed, EyeIcon, Loader2Icon } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useState } from "react";
 
@@ -39,7 +39,7 @@ export default function SignupPage() {
 	const [pendingVerification, setPendingVerification] = useState(false);
 	const [code, setcode] = useState("");
 	// const [errorAlert, setError] = useState();
-	const [showPassword, setShowPassword] = useState(false);
+	// const [showPassword, setShowPassword] = useState(false);
 	const [togglePass, setTogglePass] = useState("password");
 	const [icon, seticon] = useState(<EyeClosed />);
 	const [subMessage, setsubMessage] = useState("Sign up");

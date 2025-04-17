@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useContext  } from "react";
+import { useEffect, useState  } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";

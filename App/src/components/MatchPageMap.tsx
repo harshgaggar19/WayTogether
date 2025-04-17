@@ -1,6 +1,5 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef } from "react";
-import { toast } from "sonner";
 
 interface MatchPageMapProps {
 	source: { lat: number; lng: number } | null;

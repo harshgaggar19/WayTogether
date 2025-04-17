@@ -1,6 +1,6 @@
 /// <reference types="google.maps" />
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface MapDisplayProps {
 	source: { lat: number; lng: number } | null;
