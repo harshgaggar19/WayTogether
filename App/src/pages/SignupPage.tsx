@@ -45,7 +45,8 @@ export default function SignupPage() {
 	const [subMessage, setsubMessage] = useState("Sign up");
 	const [subMessage1, setsubMessage1] = useState("Log in");
 	const [subVerify, setsubVerify] = useState("Verify");
-	const origin_api = import.meta.env.VITE_BACKEND_URL;
+
+	const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 	if (!isLoaded) {
 		return (
@@ -158,7 +159,7 @@ export default function SignupPage() {
 			// Proceed only if verification is successful
 			try {
 				const response = await axios.post(
-					"http://localhost:8080/users/create-user",
+					`${backend_url}/users/create-user`,
 					{
 						firstName,
 						lastName,
@@ -187,7 +188,7 @@ export default function SignupPage() {
 				}
 			} catch (error) {
 				console.error("Backend error:", error);
-				toast.error("Error creating user in backend");
+				toast.error("User creation failed");
 				setsubVerify("Not Verified");
 			}
 		} catch (error: any) {
@@ -202,7 +203,7 @@ export default function SignupPage() {
 	return (
 		<>
 			{isSignedIn ? (
-				<div className="text-center w-screen h-screen flex flex-col gap-10 justify-center items-center">
+				<div className="text-center w-screen h-screen overflow-hidden flex flex-col gap-10 justify-center items-center">
 					<div className="font-bold text-3xl max-w-[50vw]">
 						Hey {useUser().user?.firstName + " " + useUser().user?.lastName}! ,
 						Ride-share welcomes you
@@ -212,7 +213,7 @@ export default function SignupPage() {
 					</Button>
 				</div>
 			) : (
-				<div className="w-screen h-screen transition-all flex justify-center items-center">
+				<div className="w-screen h-[92vh] overflow-hidden transition-all flex justify-center items-center">
 					<div className="w-1/2 h-screen hidden md:block bg-black">
 						<img
 							src="../public/img.png"

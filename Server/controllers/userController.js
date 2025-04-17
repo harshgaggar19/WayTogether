@@ -55,6 +55,7 @@ export const createUser = async (req, res) => {
 };
 
 export const findMatch = async (req, res) => {
+	console.log(req.body);
 	const { from, to, fromName, toName, clerkUserId } = req.body; //lat, lng
 	console.log("clerk id:", clerkUserId);
 
@@ -213,7 +214,8 @@ export const findMatch = async (req, res) => {
 				destination: output.sequence[3],
 				userSourceName: matchedUsersArray[i].source.name,
 				userDestinationName: matchedUsersArray[i].destination.name,
-				tripDuration: output.duration, // store duration in minutes or seconds
+				tripDuration: output.duration, // store duration in minutes or seconds]
+				tripCost: output.cost
 			});
 		}
 
@@ -298,6 +300,7 @@ export const getMatchedUsers = async (req, res) => {
 		if (!activeMatch) {
 			return res.status(404).json({ message: "No matched users found." });
 		}
+		console.log("activeMatch----------", activeMatch);
 		res.status(200).json({ matches: activeMatch });
 	} catch (error) {
 		console.error("Error:", error);

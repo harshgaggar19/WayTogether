@@ -40,6 +40,8 @@ export function SourceDesTabs() {
 		lat: number;
 		lng: number;
 	} | null>(null);
+	
+	const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 	//get user's current location using geolocation API
 	useEffect(() => {
@@ -155,8 +157,14 @@ export function SourceDesTabs() {
 		try {
 			setSubmitting(true);
 			const response = await axios.post(
-				"http://localhost:8080/users/find-match",
-				{from:sourceCoords, to:destinationCoords,fromName:formData.from,toName:formData.to,clerkUserId:user?.id},
+				`${backend_url}/users/find-match`,
+				{
+					from: sourceCoords,
+					to: destinationCoords,
+					fromName: formData.from,
+					toName: formData.to,
+					clerkUserId: user?.id,
+				},
 				{
 					headers: {
 						"Content-Type": "application/json",
@@ -165,18 +173,18 @@ export function SourceDesTabs() {
 			);
 			// const data = await response.json();
 			console.log("Response from backend:", response);
-			if(response.status == 200){
-				navigate("/matched-users", {
-					state: {
-						message: {
-							from: sourceCoords,
-							to: destinationCoords,
-							fromName: formData.from,
-							toName: formData.to,
-							clerkUserId: user?.id,
-						}
-					},
-				});
+			if (response.status == 200) {
+				localStorage.setItem(
+					"matchMessage",
+					JSON.stringify({
+						from: sourceCoords,
+						to: destinationCoords,
+						fromName: formData.from,
+						toName: formData.to,
+						clerkUserId: user?.id,
+					})
+				);
+				navigate("/matched-users");
 			} else {
 				toast.error(response.data.message);
 			}

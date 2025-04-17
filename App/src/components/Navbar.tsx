@@ -20,23 +20,22 @@ const Navbar = () => {
 	console.log("UseID : ",userId);
 	const [currentUserId,setcurrentUserId]=useState();
 	console.log(currentUserId);
+	
+	const backend_url = import.meta.env.VITE_BACKEND_URL;
 	useEffect(()=>{
 		if(!userId) return;
-			fetch(
-				`http://localhost:8080/users/get-current-user?clerkUserId=${userId}`
-			)
+			fetch(`${backend_url}/users/get-current-user?clerkUserId=${userId}`)
 				.then((res) => res.json())
 				.then((data) => {
 					console.log("Fetched user data 1 :", data);
 					if (data.user) {
-			  console.log("CurrentPhone",data.user.phone);
-						
-			  setcurrentUserId(data.user.phone);
+						console.log("CurrentPhone", data.user.phone);
+
+						setcurrentUserId(data.user.phone);
 					}
 				})
 				.catch((error) => {
 					console.error("Error fetching user data:", error);
-					
 				});
 				
 			

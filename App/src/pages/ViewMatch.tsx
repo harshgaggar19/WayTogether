@@ -23,12 +23,12 @@ const ViewMatch = () => {
 	const [drawerOpen, setDrawerOpen] = useState(true);
 	//const [mobile, setMobile] = useState<string>("");
 	const { user } = useUser();
+	
+	const backend_url = import.meta.env.VITE_BACKEND_URL;
 	console.log(user?.id);
 	 
 	useEffect(() => {
-		fetch(
-			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
-		)
+		fetch(`${backend_url}/users/get-current-user?clerkUserId=${user?.id}`)
 			.then((res) => res.json())
 			.then((data) => {
 				console.log("Fetched user data:", data);
@@ -47,7 +47,7 @@ const ViewMatch = () => {
 
 		setLoading(true);
 		fetch(
-			`http://localhost:8080/users/get-match-final?clerkUserId=${user?.id}&matchedUserId=${id}`
+			`${backend_url}/users/get-match-final?clerkUserId=${user?.id}&matchedUserId=${id}`
 		)
 			.then((res) => res.json())
 			.then((data) => {
@@ -60,9 +60,9 @@ const ViewMatch = () => {
 				} else {
 					setUserData(null);
 				}
-				console.log(currUserData.phone,data.match.matchedUser.phone);
+				// console.log(currUserData.phone, data.match.matchedUser.phone);
 				if (data.match?.matchedUser?.phone && currUserData?.phone) {
-					fetch("http://localhost:8080/api/room", {
+					fetch(`${backend_url}/api/room`, {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify({
@@ -94,7 +94,11 @@ const ViewMatch = () => {
 	if (loading) return <LoadingSpinner />;
 	console.log(userData);
 	if (!userData)
-		return <div className="text-center text-gray-700 p-4">No match found!</div>;
+		return (
+			<div className="text-center text-gray-700 p-4">
+				<LoadingSpinner />
+			</div>
+		);
 
 	return (
 		<div className="w-screen h-screen flex flex-col">
@@ -130,7 +134,7 @@ const ViewMatch = () => {
 
 			{/* Drawer for Match Details */}
 			<Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-				<DrawerContent className="h-[50vh] transition-all">
+				<DrawerContent className="h-[60vh] transition-all">
 					<div className="w-full h-full flex flex-col justify-evenly">
 						<DrawerHeader className="cursor-grab active:cursor-grabbing">
 							<DrawerTitle>Match Details</DrawerTitle>
@@ -151,6 +155,10 @@ const ViewMatch = () => {
 								<b>Estimated Duration:</b> ~{" "}
 								{Math.floor((userData.tripDuration || 0) / 60)} mins
 							</p>
+							<p>
+								<b>Trip Cost:</b> ~{Math.floor(userData.tripCost)} -{" "}
+								{Math.floor(userData.tripCost + 0.3 * userData.tripCost)} /-
+							</p>
 
 							<div className="flex flex-row justify-center space-x-5 mt-3">
 								{/* <Link to="/call" className="w-1/3 block">
@@ -161,44 +169,46 @@ const ViewMatch = () => {
 										Call
 									</Button>
 								</Link> */}
-					<Link
-	to="#"
-	onClick={async (e) => {
-		e.preventDefault();
-		if (userData.matchedUser?.phone === "9561009042") {
-			try {
-				const res = await fetch("http://localhost:8080/api/call", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						to: "+919561009042",
-					}),
-				});
+								<Link
+									to="#"
+									onClick={async (e) => {
+										e.preventDefault();
+										if (userData.matchedUser?.phone === "9561009042") {
+											try {
+												const res = await fetch(`${backend_url}/api/call`, {
+													method: "POST",
+													headers: {
+														"Content-Type": "application/json",
+													},
+													body: JSON.stringify({
+														to: "+919561009042",
+													}),
+												});
 
-				const result = await res.json();
-				if (res.ok) {
-					toast.success("Call placed successfully!");
-					console.log("Call SID:", result.callSid);
-				} else {
-					toast.error(result.error || "Failed to place call");
-				}
-			} catch (error) {
-				console.error("Call error:", error);
-				toast.error("Error placing call");
-			}
-		} else {
-			toast.warning("This user is not allowed for calling.");
-		}
-	}}
-	className="w-1/3 block"
->
-	<Button variant="outline" className="w-full text-sm py-1 bg-black text-white">
-		Call
-	</Button>
-</Link>
-
+												const result = await res.json();
+												if (res.ok) {
+													toast.success("Call placed successfully!");
+													console.log("Call SID:", result.callSid);
+												} else {
+													toast.error(result.error || "Failed to place call");
+												}
+											} catch (error) {
+												console.error("Call error:", error);
+												toast.error("Error placing call");
+											}
+										} else {
+											toast.warning("This user is not allowed for calling.");
+										}
+									}}
+									className="w-1/3 block"
+								>
+									<Button
+										variant="outline"
+										className="w-full text-sm py-1 bg-black text-white"
+									>
+										Call
+									</Button>
+								</Link>
 
 								<Link to={`/chat/${roomId}`} className="w-1/3 block">
 									<Button

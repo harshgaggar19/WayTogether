@@ -19,19 +19,19 @@ const Chat = () => {
   // Your user ID
   const {roomId} = useParams<{ roomId: string }>();
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  
+	const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 // console.log(roomId);
   useEffect(() => {
-		fetch(
-			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
-		)
+		fetch(`${backend_url}/users/get-current-user?clerkUserId=${user?.id}`)
 			.then((res) => res.json())
 			.then((data) => {
 				// console.log("Fetched user data:", data);
 				if (data.user) {
-          // console.log("CurrentID",data.user._id);
+					// console.log("CurrentID",data.user._id);
 					setCurrUserData(data.user);
-          setcurrentUserId(data.user._id);
+					setcurrentUserId(data.user._id);
 				}
 			})
 			.catch((error) => {
@@ -55,8 +55,8 @@ const Chat = () => {
       try {
         console.log("RoomId",roomId);
         const response = await axios.get(
-          `http://localhost:8080/api/getchat?roomId=${roomId}`
-        );
+					`${backend_url}/api/getchat?roomId=${roomId}`
+				);
         setMessages(response.data.chat);
       } catch (error) {
         console.error("Error fetching chat:", error);
@@ -137,7 +137,7 @@ const Chat = () => {
             className={`mb-4 flex ${msg.sender === currentUserId || msg.sender===currUserData?.phone ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`p-2 max-w-xs rounded-lg ${
+              className={`p-2 max-w-xs rounded-3xl px-4 ${
                 msg.sender === currentUserId|| msg.sender===currUserData?.phone ? "bg-gray-300 text-black" : "bg-black text-white"
               }`}
             >

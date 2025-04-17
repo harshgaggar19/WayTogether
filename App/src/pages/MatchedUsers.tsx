@@ -2,6 +2,11 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
+import axios from "axios";
+import { useWebSocket } from "./Websocket";
+import { toast } from "sonner";
+import { IoNotificationsOutline, IoNotifications } from "react-icons/io5";
+import { match } from "assert";
 // import { FaMapMarkerAlt } from "react-icons/fa";
 
 const MatchedUsersPage = () => {
@@ -17,34 +22,42 @@ const MatchedUsersPage = () => {
 	const { notifications, connectWebSocket } = useWebSocket();
 	const [showDropdown, setShowDropdown] = useState(false);
 	const location = useLocation();
-	const { message } = location.state || {};
 	const navigate = useNavigate();
 	const [refresh, setRefresh] = useState(false);
+	
+	const backend_url = import.meta.env.VITE_BACKEND_URL;
 	// const [PreviousMessages, setPreviousMessages] = useState<string[]>([]);
 
 	const handleRefresh = async () => {
-		if (!message) return;
+		const matchMessage = localStorage.getItem("matchMessage");
+		
+		if (!matchMessage) {
+			return;	
+		};
 		try {
-			// setSubmitting(true);
+			let message = JSON.parse(matchMessage || "{}");
+			console.log("refreshing")
 			const response = await axios.post(
-				"http://localhost:8080/users/find-match",
-				{ message },
+				`${backend_url}/users/find-match`,
 				{
-					headers: {
-						"Content-Type": "application/json",
-					},
+					from: message.from,
+					to: message.to,
+					fromName: message.fromName,
+					toName: message.toName,
+					clerkUserId: message.clerkUserId,
+				},
+				{
+					headers: { "Content-Type": "application/json" },
 				}
 			);
-			// const data = await response.json();
-			console.log("Response from backend:", response);
-			if (response.status == 200) {
+
+			if (response.status === 200) {
 				setRefresh(!refresh);
-			} else {
-				toast.error(response.data.message);
-			}
+				toast.success(" Matches refreshed!");
+			} 
 		} catch (error) {
-			console.error("Error submitting data:", error);
-			toast.error("Failed to submit data");
+			console.error("Error refreshing matches:", error);
+			toast.error("Failed to refresh matches");
 		}
 	};
 
@@ -53,7 +66,7 @@ const MatchedUsersPage = () => {
 		console.log("Fetching matches");
 
 		setLoading(true);
-		fetch(`http://localhost:8080/users/get-match?clerkUserId=${user?.id}`)
+		fetch(`${backend_url}/users/get-match?clerkUserId=${user?.id}`)
 			.then((res) => res.json())
 			.then((data) => {
 				console.log("Matched users data:", data);
@@ -68,9 +81,7 @@ const MatchedUsersPage = () => {
 	}, [user?.id, refresh]);
 
 	useEffect(() => {
-		fetch(
-			`http://localhost:8080/users/get-current-user?clerkUserId=${user?.id}`
-		)
+		fetch(`${backend_url}/users/get-current-user?clerkUserId=${user?.id}`)
 			.then((res) => res.json())
 			.then((data) => {
 				console.log("Fetched user data:", data);
@@ -83,7 +94,7 @@ const MatchedUsersPage = () => {
 			.catch((error) => {
 				console.error("Error fetching user data:", error);
 			});
-	}, [userId]);
+	}, [user?.id]);
 	useEffect(() => {
 		if (userId) connectWebSocket(userId);
 		// toast.success("Notification received");
@@ -134,15 +145,8 @@ const MatchedUsersPage = () => {
 					<button className="text-gray-600 flex items-center">← Back</button>
 				</Link>
 
-				<button
-					className="text-gray-600 flex items-center mb-4"
-					onClick={handleRefresh}
-				>
-					Refresh
-				</button>
-
 				{/* Notification Icon */}
-				<div className="relative">
+				<div className="relative right-20 top-4 mb-5 space-x-3 flex">
 					<button
 						onClick={() => setShowDropdown(!showDropdown)}
 						className="text-gray-600 text-2xl"
@@ -154,9 +158,16 @@ const MatchedUsersPage = () => {
 						)}
 					</button>
 
+					<button
+						className="text-gray-600 top-2 relative mb-4"
+						onClick={handleRefresh}
+					>
+						Refresh
+					</button>
+
 					{/* Dropdown for Notifications */}
 					{showDropdown && (
-						<div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-2">
+						<div className="absolute right-0 top-8 mt-2 w-64 bg-white shadow-lg rounded-lg p-2">
 							<h4 className="font-bold text-gray-800">Notifications</h4>
 							{notifications.length > 0 ? (
 								notifications.map((notif, index) => (
@@ -188,7 +199,7 @@ const MatchedUsersPage = () => {
 				matchedUsers.map((match: any, index: number) => (
 					<div
 						key={index}
-						className="border border-gray-500 text-gray-600 bg-gray-100 rounded-lg p-4 mb-4 shadow-xl hover:shadow-2xl"
+						className="border border-gray-500 text-black bg-gray-100 rounded-lg p-4 mb-4 shadow-xl hover:shadow-2xl"
 					>
 						<h3 className="font-bold text-gray-800 text-2xl underline-offset-4">
 							{match.matchedUser?.name || "Unknown User"}
@@ -203,6 +214,10 @@ const MatchedUsersPage = () => {
 							<b>Trip Duration:</b> ~{Math.floor(match.tripDuration / 60)}{" "}
 							minutes
 						</p>
+						<p>
+							<b>Trip Cost:</b> ~{Math.floor(match.tripCost)} - { Math.floor(match.tripCost + (0.3*match.tripCost))}{" "}
+							/-
+						</p>
 						<Link to={`/view-match/${match.matchedUser?._id}`}>
 							<button className="mt-3 w-full border border-gray-500 bg-black text-white py-2 rounded-md">
 								View
@@ -211,7 +226,7 @@ const MatchedUsersPage = () => {
 					</div>
 				))
 			) : (
-				<p>No Matches Found... Try again later.</p>
+				<p className="flex justify-center items-center p-4 mt-4 h-[10vh] border rounded-3xl font-semibold hover:shadow-2xl">No Matches Found... Try again later.</p>
 			)}
 		</div>
 	);

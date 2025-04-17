@@ -37,6 +37,7 @@ const activeMatchSchema = new mongoose.Schema({
 			userSourceName: String,
 			userDestinationName: String,
 			tripDuration: Number, // in minutes or seconds
+			tripCost:Number,
 		},
 	],
 	createdAt: {

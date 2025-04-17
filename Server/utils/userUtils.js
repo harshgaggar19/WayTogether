@@ -47,11 +47,43 @@ async function returnData(coordinates) {
 function create_string(a, b) {
 	return `${a[0]},${a[1]};${b[0]},${b[1]}`;
 }
+function CostForUberGo(duration, distance) {
+	let base = 42.0;
+	let pricePerKM = 6.3;
+	let pricePerMin = 1.58;
+	let surge = false; //add on for trffic
+	let cost = base + pricePerKM * distance + pricePerMin * duration;
+	return cost;
+}
+function CostForUberAuto(duration, distance) {
+	let baseFor4KM = 30;
+	let pricePerKM = 7.75; //after 4 km per km
+	let pricePerMin = 0.9;
+	let surge = false; //add on for traffic
+	let cost =
+		distance <= 4
+			? baseFor4KM + pricePerMin * duration
+			: baseFor4KM + pricePerKM * (distance - 4) + pricePerMin * duration;
+	return cost;
+}
 
-export const findMostOptimalRoute = async(sources, destination) => {
-  let optimalSequence = [];
-  console.log("Hello", sources,destination)
-  let data1 = await returnData(
+function CostForRoute(duration, distance) {
+	console.log(
+		"The cost for UberGo is: " + CostForUberGo(duration / 60, distance / 1000)
+	);
+	console.log(
+		"The cost for UberAuto is: " +
+			CostForUberAuto(duration / 60, distance / 1000)
+	);
+	return Math.min(
+		CostForUberGo(duration / 60, distance / 1000),
+		CostForUberAuto(duration / 60, distance / 1000)
+	);
+}
+
+export const findMostOptimalRoute = async (sources, destination) => {
+	let optimalSequence = [];
+	let data1 = await returnData(
 		create_string(sources[0], sources[1]) +
 			";" +
 			create_string(destination[0], destination[1])
@@ -62,22 +94,27 @@ export const findMostOptimalRoute = async(sources, destination) => {
 			create_string(destination[1], destination[0])
 	);
 
-	let temp1 = data1.routes[0].duration;
-	let temp2 = data2.routes[0].duration;
-// console.log(temp1, temp2);
-	if (temp1 < temp2) {
+	let temp1 = data1.routes[0];
+	let temp2 = data2.routes[0];
+	// console.log(temp1, temp2);
+	if (temp1.duration < temp2.duration) {
 		optimalSequence = [sources[0], sources[1], destination[0], destination[1]];
-		return {sequence: optimalSequence, duration: temp1};
+		console.log("temp1--------", temp1);
+		let cost = CostForRoute(temp1.duration, temp1.distance);
+		console.log("cost", cost);
+
+		return { sequence: optimalSequence, duration: temp1.duration, cost: cost };
 	} else {
 		optimalSequence = [sources[0], sources[1], destination[1], destination[0]];
-		return { sequence: optimalSequence, duration: temp2 };
+		console.log("temp2--------", temp2);
+		let cost = CostForRoute(temp2.duration, temp2.distance);
+		console.log("cost", cost);
+		return { sequence: optimalSequence, duration: temp2.duration, cost: cost };
 	}
 
 	// console.log(optimalSequence)
 	return optimalSequence;
-  
-}
-
+};
 
 export const getRoutePoints = async (a, b) => {
 	const query_b = await fetch(

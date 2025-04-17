@@ -14,7 +14,12 @@ import { groupsjoined } from './fetch/getrooms.js';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 8080;
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+}));
 app.use(express.json());
 
 
