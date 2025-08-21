@@ -46,6 +46,8 @@ function App() {
 
 					{/* Private Routes (Requires Authentication) */}
 					<Route path="/" element={<Layout />}>
+						
+                        <Route index element={<Navigate to="/home" replace />} />
 						<Route path="/harsh" element={<>Hello Harsh</>} />
 						<Route
 							path="/home"

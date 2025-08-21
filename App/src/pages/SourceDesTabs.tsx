@@ -12,7 +12,7 @@ import { Mapdisplay } from "@/components/Mapdisplay";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useUser,SignedIn } from "@clerk/clerk-react";
+import { useUser,SignedIn, ClerkDegraded } from "@clerk/clerk-react";
 import { toast } from "sonner";
 
 interface FormData {
@@ -184,6 +184,7 @@ export function SourceDesTabs() {
 						clerkUserId: user?.id,
 					})
 				);
+				console.log("before redirect")
 				navigate("/matched-users");
 			} else {
 				toast.error(response.data.message);

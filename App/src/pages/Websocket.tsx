@@ -95,7 +95,11 @@ const WebSocketContext = createContext<WebSocketContextType | undefined>(
 	undefined
 );
 
-export function WebSocketProvider({ children }) {
+interface WebSocketProviderProps {
+    children: React.ReactNode;
+}
+
+export function WebSocketProvider({ children }: WebSocketProviderProps) {
 	const wsRef = useRef<WebSocket | null>(null);
 	const [notifications, setNotifications] = useState<Notification[]>([]);
 	const userIdRef = useRef<string | null>(null); // for reconnect logic

@@ -7,8 +7,8 @@ import {  Outlet, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 
 const Layout = () => {
-	const navigate = useNavigate();
-	navigate("/home");
+	// const navigate = useNavigate();
+	// navigate("/home");
 	return (
 		<div className="layout">
 			{/* <FloatingNav /> */}

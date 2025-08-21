@@ -9,7 +9,6 @@ const Chat = () => {
   const { removeNotification } = useWebSocket(); 
   const {user} = useUser();
  
-  // console.log("Hell",user);
   const [messages, setMessages] = useState<{ message: string; sender: string }[]>([]);
   
     const [currUserData, setCurrUserData] = useState<any | null>(null);
